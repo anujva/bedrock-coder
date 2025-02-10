@@ -61,7 +61,11 @@ type InvokeModelWithResponseStreamWrapper struct {
 // InvokeModelWithResponseStream sends the prompt (with required enclosures)
 // to the model using the InvokeModelWithResponseStream API and processes the stream
 // using the provided handler. It returns the combined response.
-func (wrapper InvokeModelWithResponseStreamWrapper) InvokeModelWithResponseStream(ctx context.Context, prompt string, handler StreamingOutputHandler) (Response, error) {
+func (wrapper InvokeModelWithResponseStreamWrapper) InvokeModelWithResponseStream(
+	ctx context.Context,
+	prompt string,
+	handler StreamingOutputHandler,
+) (Response, error) {
 	modelId := "anthropic.claude-v2"
 	// Anthropic Claude requires the prompt to be enclosed.
 	prefix := "Human: "
@@ -121,7 +125,10 @@ func (wrapper InvokeModelWithResponseStreamWrapper) InvokeModelWithResponseStrea
 			log.Printf("[Stream] Received unexpected event type")
 		}
 	}
-	log.Printf("[InvokeModelWithResponseStream] Finished stream; combined length: %d", len(combinedResult))
+	log.Printf(
+		"[InvokeModelWithResponseStream] Finished stream; combined length: %d",
+		len(combinedResult),
+	)
 	return Response{Completion: combinedResult}, nil
 }
 
@@ -219,7 +226,11 @@ func invokeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err = wrapper.InvokeModelWithResponseStream(ctx, prompt, streamHandler)
 		if err != nil {
-			http.Error(w, "Failed to stream Bedrock response: "+err.Error(), http.StatusInternalServerError)
+			http.Error(
+				w,
+				"Failed to stream Bedrock response: "+err.Error(),
+				http.StatusInternalServerError,
+			)
 			log.Printf("[Handler] Streaming invocation error: %v", err)
 			return
 		}
@@ -249,15 +260,7 @@ func invokeHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Decide the mode once at startup.
-	// Set STREAM_MODE environment variable to "true" for streaming mode.
-	streamMode := os.Getenv("STREAM_MODE")
-	if streamMode == "true" {
-		globalStreamingMode = true
-		log.Println("Server configured in STREAMING mode.")
-	} else {
-		globalStreamingMode = false
-		log.Println("Server configured in AGGREGATE mode (full response at once).")
-	}
+	globalStreamingMode = true // currently going with always streaming
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/sign_and_send", invokeHandler)
