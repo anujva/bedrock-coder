@@ -249,18 +249,10 @@ func invokeHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Decide the mode once at startup.
-	// Set STREAM_MODE environment variable to "true" for streaming mode.
-	streamMode := os.Getenv("STREAM_MODE")
-	if streamMode == "true" {
-		globalStreamingMode = true
-		log.Println("Server configured in STREAMING mode.")
-	} else {
-		globalStreamingMode = false
-		log.Println("Server configured in AGGREGATE mode (full response at once).")
-	}
+	globalStreamingMode = true
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/sign_and_send", invokeHandler)
+	mux.HandleFunc("/invoke", invokeHandler)
 
 	// Listen on Unix domain socket if SIGNER_SOCKET is set.
 	if socket := os.Getenv("SIGNER_SOCKET"); socket != "" {
