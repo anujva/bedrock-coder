@@ -263,7 +263,7 @@ func main() {
 	globalStreamingMode = true // currently going with always streaming
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/sign_and_send", invokeHandler)
+	mux.HandleFunc("/invoke", invokeHandler)
 
 	// Listen on Unix domain socket if SIGNER_SOCKET is set.
 	if socket := os.Getenv("SIGNER_SOCKET"); socket != "" {
